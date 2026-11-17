@@ -1,0 +1,17 @@
+.venv/
+.cache/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.DS_Store
+.agents/
+.aws/
+.codex/
+.vercel/
+apps/control-lab/.openai/
+control-lab-vercel-ready.tar.gz
+

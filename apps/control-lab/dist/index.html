@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#07131f">
+  <title>Phase 2 — Proportional Control | Control Lab</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="pages.css">
+  <link rel="stylesheet" href="animation.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="index.html"><span class="brand-mark">CL</span><span>CONTROL LAB</span></a>
+    <nav class="phase-nav" aria-label="Course phases"><a class="active" href="index.html">02 · Proportional</a><a href="pi-control.html">03 · PI</a><a href="two-tank.html">04 · Two tanks →</a></nav>
+  </header>
+
+  <main>
+    <section class="hero phase-hero problem-hero">
+      <div>
+        <p class="eyebrow">PHASE 02 / PROPORTIONAL FEEDBACK</p>
+        <h1>Fast correction.<br><em>One persistent problem.</em></h1>
+        <p class="lede">A biased P controller reaches the nominal target. Add an unknown permanent leak, however, and it must keep a permanent height error to request the extra flow.</p>
+        <a class="hero-report-link" href="p-control-report.html">Read the full engineering report →</a>
+      </div>
+      <div class="concept-card">
+        <span class="concept-number">01</span>
+        <p>Proportional action only responds to the <strong>error that exists now</strong>.</p>
+        <code>u = u_bias + Kp(r − h)</code>
+      </div>
+    </section>
+
+    <section class="lesson-strip">
+      <div><span>Nominal model</span><strong>Bias can hold 3 m</strong></div>
+      <div><span>Unknown extra leak</span><strong>Height falls below 3 m</strong></div>
+      <div><span>Why?</span><strong>Extra flow requires lasting error</strong></div>
+    </section>
+
+    <section class="dynamic-lab" aria-label="Mathematically synchronized proportional-control animation">
+      <div class="animation-copy">
+        <p class="eyebrow">LIVE MASS BALANCE</p><h2>Watch every term change together</h2>
+        <p>The tank, pipes, controller equation, and derivative all use the exact same Euler state sample.</p>
+        <div class="animation-controls"><button id="playAnimation" class="button">Pause</button><input id="animationTime" aria-label="Simulation time" type="range" min="0" max="1000" value="0"><span id="animationClock">0.0 s</span></div>
+        <div class="live-equations" aria-live="polite">
+          <div><span>ERROR</span><strong id="liveError">e = —</strong></div>
+          <div><span>P COMMAND</span><strong id="liveCommand">u = —</strong></div>
+          <div><span>STATE RATE</span><strong id="liveRate">dh/dt = —</strong></div>
+        </div>
+      </div>
+      <div class="single-process">
+        <div class="process-pipe inlet-pipe"><span id="pumpLabel">u = —</span><i id="inletStream"></i></div>
+        <div class="tank-wrap"><div class="tank-scale"><span id="scaleTop">—</span><span>0 m</span></div><div class="process-tank" id="processTank"><div class="process-water" id="animatedWater"><b></b></div><div class="process-target" id="animatedTarget"><span>r</span></div></div><strong id="animatedHeight">h = —</strong><small id="levelTrend">—</small><em class="model-warning" id="modelWarning"></em></div>
+        <div class="process-pipe outlet-pipe"><i id="outletStream"></i><span id="outletLabel">k·h = —</span></div>
+        <div class="process-pipe leak-pipe"><i id="leakStream"></i><span id="leakLabel">q_leak = —</span></div>
+        <div class="balance-strip"><span id="balanceIn">IN —</span><strong id="balanceRelation">=</strong><span id="balanceOut">OUT —</span></div>
+      </div>
+    </section>
+
+    <section class="lab-grid">
+      <aside class="controls panel">
+        <div class="section-head"><div><p class="eyebrow">PHASE 2 INPUTS</p><h2>Expose the offset</h2></div><button id="reset" class="text-button">Reset</button></div>
+        <details open><summary>Tank model <span>01</span></summary><div class="control-group">
+          <label>Tank area, A <output data-for="area"></output></label><input id="area" type="range" min="0.5" max="5" step="0.1" value="2">
+          <label>Initial height, h₀ <output data-for="initial"></output></label><input id="initial" type="range" min="0" max="5" step="0.1" value="3">
+          <label>Outlet coefficient, k <output data-for="outlet"></output></label><input id="outlet" type="range" min="0.002" max="0.03" step="0.001" value="0.01">
+          <label>Nominal leak <output data-for="leak"></output></label><input id="leak" type="range" min="0" max="0.02" step="0.001" value="0.005">
+        </div></details>
+        <details open><summary>P controller <span>02</span></summary><div class="control-group">
+          <label>Target, r <output data-for="target"></output></label><input id="target" type="range" min="0.5" max="5" step="0.1" value="3">
+          <label>Gain, Kp <output data-for="kp"></output></label><input id="kp" type="range" min="0" max="0.12" step="0.005" value="0.02">
+          <label>Bias flow <output data-for="bias"></output></label><input id="bias" type="range" min="0" max="0.08" step="0.001" value="0.035">
+          <label>Pump maximum <output data-for="maxFlow"></output></label><input id="maxFlow" type="range" min="0.02" max="0.2" step="0.005" value="0.1">
+        </div></details>
+        <details open><summary>Persistent disturbance <span>03</span></summary><div class="control-group">
+          <label>Extra leak <output data-for="extraLeak"></output></label><input id="extraLeak" type="range" min="0" max="0.03" step="0.001" value="0.007">
+          <label>Disturbance time <output data-for="disturbanceAt"></output></label><input id="disturbanceAt" type="range" min="0" max="1000" step="10" value="600">
+          <label>Duration <output data-for="duration"></output></label><input id="duration" type="range" min="200" max="3000" step="100" value="2400">
+          <label>Time step, Δt <output data-for="dt"></output></label><input id="dt" type="range" min="0.1" max="20" step="0.1" value="0.1">
+        </div></details>
+      </aside>
+
+      <div class="workspace">
+        <section class="metrics" aria-label="P-controller results">
+          <article><span>Final height</span><strong id="finalHeight">—</strong><small>after disturbance</small></article>
+          <article><span>Permanent error</span><strong id="finalError">—</strong><small>needed for correction</small></article>
+          <article><span>Final pump flow</span><strong id="finalFlow">—</strong><small>balances actual losses</small></article>
+          <article><span>Final total outflow</span><strong id="finalLoss">—</strong><small>outlet + added leak</small></article>
+        </section>
+        <section class="chart-card panel"><div class="chart-title"><div><p class="eyebrow">THE LIMITATION</p><h2>P control settles at the wrong height</h2></div><div class="legend"><span class="biased">Biased P</span><span class="reference">Target</span></div></div><canvas id="heightChart" role="img" aria-label="Biased proportional controller height response after a permanent leak"></canvas></section>
+        <section class="chart-card panel compact"><div class="chart-title"><div><p class="eyebrow">CORRECTIVE ACTION</p><h2>Pump flow</h2></div></div><canvas id="flowChart" role="img" aria-label="Proportional controller inlet flow"></canvas></section>
+        <section class="problem-box panel"><div><p class="eyebrow">THE PROBLEM TO SOLVE</p><h2>At zero error, P returns to its bias.</h2><p id="explanation"></p></div><a class="next-button" href="pi-control.html">See the PI solution <span>→</span></a></section>
+      </div>
+    </section>
+  </main>
+  <footer><span>CONTROL LAB / PHASE 02</span><span>Next: accumulated error gives the controller memory</span></footer>
+  <script src="p-control.js"></script>
+</body>
+</html>

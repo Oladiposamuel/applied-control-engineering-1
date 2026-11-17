@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#10263f">
+  <meta name="description" content="Engineering report for the single-tank proportional controller: model, equations, Python results, equilibrium bias and disturbance offset.">
+  <title>Proportional Control Engineering Report | Control Lab</title>
+  <link rel="stylesheet" href="report.css">
+</head>
+<body>
+  <header class="report-bar">
+    <a class="report-brand" href="index.html">CL · CONTROL LAB</a>
+    <nav class="report-nav" aria-label="Report navigation">
+      <a href="#model">Model</a>
+      <a href="#bias">Bias</a>
+      <a href="#results">Results</a>
+      <a href="#verification">Verification</a>
+      <a href="index.html">Interactive P simulation →</a>
+    </nav>
+  </header>
+
+  <main class="report">
+    <p class="report-kicker">01 · Single tank / P / Engineering report</p>
+    <h1>Proportional control: what feedback can—and cannot—fix</h1>
+    <p class="subtitle">Mathematical model, verified Python results, equilibrium bias, and the permanent error left by an unmodelled disturbance.</p>
+    <a class="companion" href="index.html">Open the interactive companion →</a>
+
+    <figure>
+      <img src="assets/p-control/feedback-loop.png" alt="Closed-loop proportional control diagram for the single water tank">
+      <figcaption>Figure 1. The pump adjusts inlet flow from the measured height error; outlet and leakage remove water.</figcaption>
+    </figure>
+
+    <section class="question">
+      <h2>Research question</h2>
+      <p>Can a proportional controller keep a tank at <strong>3 m</strong> when normal losses are known—and what happens when an unexpected leak increases the outflow? The main lesson is that an equilibrium bias can cancel known losses, but proportional feedback alone generally needs a nonzero tracking error to overcome a new constant disturbance.</p>
+    </section>
+
+    <section id="model">
+      <h2>1. System specification and assumptions</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Quantity</th><th>Value</th><th>Interpretation</th></tr></thead>
+          <tbody>
+            <tr><td>Cross-sectional area A</td><td>2 m²</td><td>Cylindrical tank with constant area</td></tr>
+            <tr><td>Inflow (open loop)</td><td>0.040 m³/s</td><td>Fixed before feedback control</td></tr>
+            <tr><td>Outlet coefficient k</td><td>0.010 m²/s</td><td>q<sub>out</sub> = kh</td></tr>
+            <tr><td>Nominal leak</td><td>0.005 m³/s</td><td>Constant independent withdrawal</td></tr>
+            <tr><td>Initial height</td><td>1 m</td><td>Reference step begins below target</td></tr>
+            <tr><td>Reference / pump limits</td><td>3 m / 0–0.100 m³/s</td><td>Actuator saturation model</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="formula" aria-label="A times dh by dt equals u minus k h minus q leak">
+        <math display="block">
+          <mrow><mi>A</mi><mfrac><mrow><mi>d</mi><mi>h</mi></mrow><mrow><mi>d</mi><mi>t</mi></mrow></mfrac><mo>=</mo><mi>u</mi><mo>−</mo><mi>k</mi><mi>h</mi><mo>−</mo><msub><mi>q</mi><mtext>leak</mtext></msub></mrow>
+        </math>
+      </div>
+
+      <p>The accumulation term is A·dh/dt because the stored volume is V = A·h. The model uses a linear outlet and a constant leak; it excludes sensor noise, actuator lag, overflow, and dry-out.</p>
+
+      <figure class="handwritten">
+        <img src="assets/p-control/handwritten-tank-derivation.png" alt="Original handwritten derivation of the single-tank water balance">
+        <figcaption>Figure 2. Original handwritten tank derivation, contrast-enhanced. The report uses corrected conservation notation.</figcaption>
+      </figure>
+    </section>
+
+    <section id="bias">
+      <h2>2. Why the bias is needed</h2>
+      <div class="formula" aria-label="e equals r minus h, u equals clip of q bias plus K p e between zero and 0.100">
+        <math display="block">
+          <mrow><mi>e</mi><mo>=</mo><mi>r</mi><mo>−</mo><mi>h</mi><mo>,</mo><mspace width="2em"></mspace><mi>u</mi><mo>=</mo><mtext>clip</mtext><mo>(</mo><msub><mi>q</mi><mtext>bias</mtext></msub><mo>+</mo><msub><mi>K</mi><mi>p</mi></msub><mi>e</mi><mo>,</mo><mn>0</mn><mo>,</mo><mn>0.100</mn><mo>)</mo></mrow>
+        </math>
+      </div>
+
+      <p>With r = 3 m, K<sub>p</sub> = 0.03 m²/s, and the nominal leak of 0.005 m³/s, the balancing flow is q<sub>bias</sub> = kr + q<sub>leak</sub> = <strong>0.035 m³/s</strong>. At h = 1 m, the initial command is 0.035 + 0.03·(3−1) = <strong>0.095 m³/s</strong>, within the pump limit.</p>
+
+      <div class="formula" aria-label="h equilibrium equals q bias plus K p r minus q leak, divided by k plus K p">
+        <math display="block">
+          <mrow><msub><mi>h</mi><mtext>eq</mtext></msub><mo>=</mo><mfrac><mrow><msub><mi>q</mi><mtext>bias</mtext></msub><mo>+</mo><msub><mi>K</mi><mi>p</mi></msub><mi>r</mi><mo>−</mo><msub><mi>q</mi><mtext>leak</mtext></msub></mrow><mrow><mi>k</mi><mo>+</mo><msub><mi>K</mi><mi>p</mi></msub></mrow></mfrac></mrow>
+        </math>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Scenario</th><th>Predicted equilibrium</th><th>Interpretation</th></tr></thead>
+          <tbody>
+            <tr><td>No bias, no added leak</td><td>2.125 m</td><td>Large permanent offset</td></tr>
+            <tr><td>Bias = 0.035, nominal leak</td><td>3.000 m</td><td>Nominal target maintained</td></tr>
+            <tr><td>Bias + extra leak 0.010</td><td>2.750 m</td><td>0.250 m permanent offset</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="results">
+      <h2>3. Reproduced implementation results</h2>
+      <p>The archived Phase 2 Python project evaluates the controller once per 0.1 s step, holds the inlet command over that step, and advances the tank using Forward Euler. The archived test suite was executed during the report preparation: <strong>11 of 11 tests passed</strong>.</p>
+
+      <figure>
+        <img src="assets/p-control/controller-comparison.png" alt="Open-loop, proportional without bias, and proportional with equilibrium bias responses">
+        <figcaption>Figure 3. Existing project output: open loop, P without bias, and biased P, showing water height and executed inlet flow.</figcaption>
+      </figure>
+
+      <p>For the unsaturated, biased nominal system, the closed-loop time constant is A/(k + K<sub>p</sub>) = <strong>50 s</strong>, compared with 200 s for the original open-loop model. The archived run reports a 2 cm reference band reached and maintained at approximately <strong>230.1 s</strong>.</p>
+
+      <div class="result-note" aria-label="Key proportional-control results">
+        <div><span>Nominal target</span><strong>3.000 m</strong></div>
+        <div><span>Closed-loop time constant</span><strong>50 s</strong></div>
+        <div><span>2 cm settling time</span><strong>230.1 s</strong></div>
+      </div>
+
+      <h2>4. Persistent-leak experiment</h2>
+      <p>At t = 600 s, the existing simulation increases leakage by 0.010 m³/s. The biased P controller eventually settles at 2.75 m; the permanent shortfall is 0.25 m. Its pump output rises enough to balance the new losses at <em>that lower height</em>, not at 3 m.</p>
+
+      <figure>
+        <img src="assets/p-control/disturbance-response.png" alt="Proportional-control response to a permanent increase in tank leakage">
+        <figcaption>Figure 4. Existing project output: a step increase in leakage reveals the P controller’s nonzero disturbance offset.</figcaption>
+      </figure>
+    </section>
+
+    <section>
+      <h2>5. Hand calculation to code</h2>
+      <figure class="handwritten">
+        <img src="assets/p-control/handwritten-p-euler-notes.png" alt="Handwritten Forward Euler update and proportional-control reasoning">
+        <figcaption>Figure 5. Handwritten Forward Euler update and proportional-control reasoning. The model below is the checked reference.</figcaption>
+      </figure>
+
+      <div class="formula" aria-label="Forward Euler height update">
+        <math display="block">
+          <mrow><msub><mi>h</mi><mrow><mi>n</mi><mo>+</mo><mn>1</mn></mrow></msub><mo>=</mo><msub><mi>h</mi><mi>n</mi></msub><mo>+</mo><mi>Δ</mi><mi>t</mi><mfrac><mrow><msub><mi>u</mi><mi>n</mi></msub><mo>−</mo><mi>k</mi><msub><mi>h</mi><mi>n</mi></msub><mo>−</mo><msub><mi>q</mi><mrow><mtext>leak</mtext><mo>,</mo><mi>n</mi></mrow></msub></mrow><mi>A</mi></mfrac></mrow>
+        </math>
+      </div>
+
+      <pre><code>error = target - height[k]
+u_raw = bias + kp * error
+u = np.clip(u_raw, 0.0, pump_max)
+rate = (u - outlet_k * height[k] - leak[k]) / area
+height[k + 1] = height[k] + dt * rate</code></pre>
+    </section>
+
+    <section id="verification">
+      <h2>6. Verification, reproducibility and limitations</h2>
+      <p>Reproduce the Phase 2 plots using the archived project: install requirements, run the feedback-control module, then run the project tests.</p>
+
+      <pre><code>make setup
+PYTHONPATH=projects/01-water-tank/src \
+  python -m water_tank.feedback_control
+PYTHONPATH=projects/01-water-tank/src \
+  python -m unittest discover -s projects/01-water-tank/tests -v</code></pre>
+
+      <p>This report includes existing code-generated images; it is not a claim that the web demonstration and the Python archive are the same runtime.</p>
+      <ul class="limits">
+        <li>Control is sampled; the underlying physics is idealized.</li>
+        <li>Bias delivers zero error only for the known nominal leakage and target.</li>
+        <li>A permanent unknown disturbance moves the P equilibrium, so PI is the logical next comparison.</li>
+      </ul>
+
+      <p class="source-note"><strong>Source distinction:</strong> numerical results and the test count in this report come from the existing single-tank Python archive.<br><strong>Interactive illustration:</strong> <a href="index.html">Control Lab proportional page</a>.</p>
+    </section>
+
+    <footer class="report-footer"><span>01 · Single tank / P</span><span>Control Lab engineering report</span></footer>
+  </main>
+</body>
+</html>

@@ -1,0 +1,2 @@
+# Add direct dependencies with minimum supported versions, one per line.
+

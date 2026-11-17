@@ -1,0 +1,5 @@
+.git
+.openai
+.vercel
+node_modules
+npm-debug.log*

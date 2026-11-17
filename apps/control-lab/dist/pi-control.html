@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#07131f">
+  <title>Phase 3 — PI Control | Control Lab</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="pages.css">
+  <link rel="stylesheet" href="animation.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="index.html"><span class="brand-mark">CL</span><span>CONTROL LAB</span></a>
+    <nav class="phase-nav" aria-label="Course phases"><a href="index.html">02 · P</a><a class="active" href="pi-control.html">03 · PI answer</a><a href="two-tank.html">04 · Two tanks →</a></nav>
+  </header>
+
+  <main>
+    <section class="hero phase-hero answer-hero">
+      <div>
+        <p class="eyebrow">PHASE 03 / THE ANSWER TO P-ONLY OFFSET</p>
+        <h1>Add memory.<br><em>Remove the offset.</em></h1>
+        <p class="lede">Integral action accumulates past error. After the height returns to target, that stored value continues requesting the extra flow needed to balance the unknown leak.</p>
+      </div>
+      <div class="concept-card answer-card">
+        <span class="concept-number">02</span>
+        <p>Integral action responds to <strong>error accumulated over time</strong>.</p>
+        <code>u = u_bias + Kp·e + Ki·∫e dt</code>
+      </div>
+    </section>
+    <div class="answer-bridge"><strong>Answering Phase 2:</strong><span>P needed a permanent error. PI stores that correction in z, allowing the current error to return to zero.</span><a href="index.html">Review the P-only problem</a></div>
+
+    <section class="dynamic-lab" aria-label="Mathematically synchronized PI-control animation">
+      <div class="animation-copy">
+        <p class="eyebrow">LIVE PI STATE UPDATE</p><h2>See stored error supply the missing flow</h2>
+        <p>Every frame evaluates the proportional term, integral term, flows, and both state derivatives from one simulation sample.</p>
+        <div class="animation-controls"><button id="playAnimation" class="button">Pause</button><input id="animationTime" aria-label="Simulation time" type="range" min="0" max="1000" value="0"><span id="animationClock">0.0 s</span></div>
+        <div class="live-equations pi-equations" aria-live="polite">
+          <div><span>CURRENT ERROR</span><strong id="liveError">e = —</strong></div>
+          <div><span>MEMORY STATE</span><strong id="animatedIntegral">z = —</strong></div>
+          <div><span>CONTROLLER TERMS</span><strong id="liveCommand">u = —</strong></div>
+          <div><span>STATE RATES</span><strong id="liveRates">dh/dt = — · dz/dt = —</strong></div>
+        </div>
+      </div>
+      <div class="single-process">
+        <div class="process-pipe inlet-pipe"><span id="pumpLabel">u = —</span><i id="inletStream"></i></div>
+        <div class="tank-wrap"><div class="tank-scale"><span id="scaleTop">—</span><span>0 m</span></div><div class="process-tank" id="processTank"><div class="process-water" id="animatedWater"><b></b></div><div class="process-target" id="animatedTarget"><span>r</span></div></div><strong id="animatedHeight">h = —</strong><small id="levelTrend">—</small><em class="model-warning" id="modelWarning"></em></div>
+        <div class="process-pipe outlet-pipe"><i id="outletStream"></i><span id="outletLabel">k·h = —</span></div>
+        <div class="process-pipe leak-pipe"><i id="leakStream"></i><span id="leakLabel">q_leak = —</span></div>
+        <div class="balance-strip"><span id="balanceIn">IN —</span><strong id="balanceRelation">=</strong><span id="balanceOut">OUT —</span></div>
+      </div>
+    </section>
+
+    <section class="lab-grid">
+      <aside class="controls panel">
+        <div class="section-head"><div><p class="eyebrow">PHASE 3 INPUTS</p><h2>Test the answer</h2></div><button id="reset" class="text-button">Reset</button></div>
+
+        <details open><summary>Tank model <span>01</span></summary><div class="control-group">
+          <label>Tank area, A <output data-for="area"></output></label><input id="area" type="range" min="0.5" max="5" step="0.1" value="2">
+          <label>Initial height, h₀ <output data-for="initial"></output></label><input id="initial" type="range" min="0" max="5" step="0.1" value="3">
+          <label>Outlet coefficient, k <output data-for="outlet"></output></label><input id="outlet" type="range" min="0.002" max="0.03" step="0.001" value="0.01">
+          <label>Nominal leak <output data-for="leak"></output></label><input id="leak" type="range" min="0" max="0.02" step="0.001" value="0.005">
+        </div></details>
+
+        <details open><summary>P + PI controllers <span>02</span></summary><div class="control-group">
+          <label>Target, r <output data-for="target"></output></label><input id="target" type="range" min="0.5" max="5" step="0.1" value="3">
+          <label>Gain, Kp <output data-for="kp"></output></label><input id="kp" type="range" min="0" max="0.12" step="0.005" value="0.02">
+          <label>Integral gain, Ki <output data-for="ki"></output></label><input id="ki" type="range" min="0" max="0.005" step="0.0001" value="0.001">
+          <label>Bias flow <output data-for="bias"></output></label><input id="bias" type="range" min="0" max="0.08" step="0.001" value="0.035">
+          <label>Pump maximum <output data-for="maxFlow"></output></label><input id="maxFlow" type="range" min="0.02" max="0.2" step="0.005" value="0.1">
+        </div></details>
+
+        <details><summary>Disturbance & time <span>03</span></summary><div class="control-group">
+          <label>Extra leak <output data-for="extraLeak"></output></label><input id="extraLeak" type="range" min="0" max="0.03" step="0.001" value="0.007">
+          <label>Disturbance time <output data-for="disturbanceAt"></output></label><input id="disturbanceAt" type="range" min="0" max="1000" step="10" value="600">
+          <label>Duration <output data-for="duration"></output></label><input id="duration" type="range" min="200" max="3000" step="100" value="2400">
+          <label>Time step, Δt <output data-for="dt"></output></label><input id="dt" type="range" min="0.1" max="20" step="0.1" value="0.1">
+        </div></details>
+
+        <div class="toggles"><label><input id="showBiased" type="checkbox" checked><span></span>Phase 2: biased P</label><label><input id="showPi" type="checkbox" checked><span></span>Phase 3: PI controller</label></div>
+      </aside>
+
+      <div class="workspace">
+        <section class="metrics" aria-label="Simulation metrics">
+          <article><span>PI final height</span><strong id="finalHeight">—</strong><small id="finalError">—</small></article>
+          <article><span>P final offset</span><strong id="pOffset">—</strong><small>error P must retain</small></article>
+          <article><span>Integral memory, z</span><strong id="integralFinal">—</strong><small>m·s at end of run</small></article>
+          <article><span>Integral contribution</span><strong id="integralFlow">—</strong><small>Ki · z at end of run</small></article>
+        </section>
+
+        <section class="chart-card panel"><div class="chart-title"><div><p class="eyebrow">THE ANSWER</p><h2>PI returns to the target</h2></div><div class="legend"><span class="biased">Phase 2: biased P</span><span class="pi">Phase 3: PI</span><span class="reference">Target</span></div></div><canvas id="heightChart" role="img" aria-label="Water height comparison showing PI control removing the proportional controller offset"></canvas></section>
+        <section class="chart-card panel compact"><div class="chart-title"><div><p class="eyebrow">ACTUATOR</p><h2>Inlet flow</h2></div><button id="download" class="button">Download CSV</button></div><canvas id="flowChart" role="img" aria-label="Inlet flow chart"></canvas></section>
+        <section class="insight panel"><p class="eyebrow">WHY PI SOLVES IT</p><p id="insightText"></p><div class="equation" id="equation"></div></section>
+      </div>
+    </section>
+  </main>
+  <footer><span>CONTROL LAB / PHASE 03</span><span>Integral action answers the persistent P-only offset</span></footer>
+  <script src="pi-control.js"></script>
+</body>
+</html>

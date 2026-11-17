@@ -1,0 +1,16 @@
+{
+  "name": "control-lab-water-tank",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Interactive water-tank control engineering simulations.",
+  "scripts": {
+    "check": "node scripts/validate-site.mjs",
+    "build": "npm run check",
+    "dev": "npx --yes vercel@latest dev",
+    "deploy": "npx --yes vercel@latest",
+    "deploy:production": "npx --yes vercel@latest --prod"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

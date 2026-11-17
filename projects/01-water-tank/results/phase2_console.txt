@@ -1,0 +1,19 @@
+Initial P-with-bias pump command: 0.095 m³/s
+Predicted undisturbed equilibria:
+  P without bias: 2.1249999999999996 m
+  P with bias:    3.0 m
+Predicted equilibria with extra leakage:
+  P without bias: 1.875 m
+  P with bias:    2.75 m
+
+End-of-run height (no disturbance | disturbance):
+  Open loop                : 3.493812 | 2.543562 m
+  P without bias           : 2.125000 | 1.875002 m
+  P with equilibrium bias  : 3.000000 | 2.750002 m
+
+Settling to within ±0.02 m of reference, undisturbed:
+  Open loop                : None s
+  P without bias           : None s
+  P with equilibrium bias  : 230.10000000000002 s
+
+Plots: /mnt/data/water-tank-project-01/results
