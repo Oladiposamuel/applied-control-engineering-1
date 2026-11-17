@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#10263f">
+  <meta name="description" content="PI water-level control engineering report: integral memory, coupled states, disturbance rejection and anti-windup.">
+  <title>PI Control Engineering Report | Control Lab</title>
+  <link rel="stylesheet" href="report.css">
+</head>
+<body>
+  <header class="report-bar">
+    <a class="report-brand" href="pi-control.html">CL · CONTROL LAB</a>
+    <nav class="report-nav" aria-label="Report navigation">
+      <a href="#memory">Memory</a><a href="#states">States</a><a href="#results">Results</a><a href="#verification">Verification</a><a href="pi-control.html">Interactive PI simulation →</a>
+    </nav>
+  </header>
+  <main class="report">
+    <p class="report-kicker">02 · Single tank / PI / Engineering report</p>
+    <h1>PI control: turning persistent error into corrective memory</h1>
+    <p class="subtitle">A second state makes the pump retain the correction needed for a constant unknown leak, without demanding a permanent height offset.</p>
+    <a class="companion" href="pi-control.html">Open the interactive companion →</a>
+
+    <figure><img src="assets/pi-control/pi-feedback-loop.png" alt="Closed-loop PI control diagram for the single water tank"><figcaption>Figure 1. In PI control, the inlet command depends on both the instantaneous height error and the integral-memory state.</figcaption></figure>
+
+    <section class="question">
+      <h2>1. From P limitation to PI objective</h2>
+      <p>Under biased P control, an added <strong>0.010 m³/s</strong> persistent leak moved the steady water level from 3.00 m to 2.75 m. The PI objective is to restore 3.00 m while retaining the added pump flow necessary to replace the leakage.</p>
+    </section>
+
+    <div class="formula" aria-label="A h dot equals u minus k h minus q leak, e equals three minus h">
+      <math display="block"><mrow><mi>A</mi><mover><mi>h</mi><mo>˙</mo></mover><mo>=</mo><mi>u</mi><mo>−</mo><mi>k</mi><mi>h</mi><mo>−</mo><msub><mi>q</mi><mtext>leak</mtext></msub><mo>,</mo><mspace width="2em"></mspace><mi>e</mi><mo>=</mo><mn>3</mn><mo>−</mo><mi>h</mi></mrow></math>
+    </div>
+
+    <section id="memory">
+      <h2>2. Introduce integral memory as a state</h2>
+      <div class="formula" aria-label="z of t equals integral of error, z dot equals error">
+        <math display="block"><mrow><mi>z</mi><mo>(</mo><mi>t</mi><mo>)</mo><mo>=</mo><msubsup><mo>∫</mo><mn>0</mn><mi>t</mi></msubsup><mi>e</mi><mo>(</mo><mi>τ</mi><mo>)</mo><mi>d</mi><mi>τ</mi><mo>,</mo><mspace width="2em"></mspace><mover><mi>z</mi><mo>˙</mo></mover><mo>=</mo><mi>e</mi><mo>(</mo><mi>t</mi><mo>)</mo></mrow></math>
+      </div>
+      <p>The integral state z has units of m·s. If the height remains 0.5 m below target for 8 s and z begins at zero, then z(8) = 4 m·s. It is an accumulated quantity; z need not vanish when e becomes zero.</p>
+      <figure class="handwritten"><img src="assets/pi-control/handwritten-error-memory-command.png" alt="Handwritten PI error, integral memory and command calculation"><figcaption>Figure 2. Handwritten calculation of instantaneous error, accumulated error, and a PI pump command.</figcaption></figure>
+      <div class="formula" aria-label="u equals clipped 0.035 plus K p times three minus h plus K i z">
+        <math display="block"><mrow><mi>u</mi><mo>=</mo><mtext>clip</mtext><mo>(</mo><mn>0.035</mn><mo>+</mo><msub><mi>K</mi><mi>p</mi></msub><mo>(</mo><mn>3</mn><mo>−</mo><mi>h</mi><mo>)</mo><mo>+</mo><msub><mi>K</mi><mi>i</mi></msub><mi>z</mi><mo>,</mo><mn>0</mn><mo>,</mo><mn>0.10</mn><mo>)</mo></mrow></math>
+      </div>
+      <p>The report illustration uses K<sub>p</sub> = 0.03 m²/s, K<sub>i</sub> = 0.001 m/s², a 0.035 m³/s nominal bias, and a 0–0.10 m³/s actuator range.</p>
+    </section>
+
+    <section id="states">
+      <h2>3. The coupled state equations</h2>
+      <div class="formula" aria-label="PI closed loop h dot and z dot equations">
+        <math display="block"><mrow><mover><mi>h</mi><mo>˙</mo></mover><mo>=</mo><mfrac><mrow><mn>0.035</mn><mo>+</mo><msub><mi>K</mi><mi>p</mi></msub><mo>(</mo><mn>3</mn><mo>−</mo><mi>h</mi><mo>)</mo><mo>+</mo><msub><mi>K</mi><mi>i</mi></msub><mi>z</mi><mo>−</mo><mn>0.01</mn><mi>h</mi><mo>−</mo><msub><mi>q</mi><mtext>leak</mtext></msub></mrow><mn>2</mn></mfrac><mo>,</mo><mspace width="2em"></mspace><mover><mi>z</mi><mo>˙</mo></mover><mo>=</mo><mn>3</mn><mo>−</mo><mi>h</mi></mrow></math>
+      </div>
+      <p>The controller changes the original one-state physical model into a two-state closed-loop system (h, z). Both derivatives must be evaluated at the same old state before a simultaneous Forward Euler update.</p>
+      <figure class="handwritten"><img src="assets/pi-control/handwritten-pi-state-derivation.png" alt="Handwritten PI state-equation derivation"><figcaption>Figure 3. The original derivation that substitutes PI feedback into conservation of volume; corrected equations are typeset above.</figcaption></figure>
+
+      <h2>4. Why integral action removes the offset</h2>
+      <p>At the desired equilibrium, h = 3 m and e = 0, yet the pump must replace normal losses and the increased leakage. With an extra 0.010 m³/s leak, the required inflow is 0.045 m³/s. The difference from the bias must come from K<sub>i</sub>z.</p>
+      <div class="formula" aria-label="0.035 plus 0.001 z equilibrium equals 0.045, therefore z equilibrium equals 10 metre seconds">
+        <math display="block"><mrow><mn>0.035</mn><mo>+</mo><mn>0.001</mn><msub><mi>z</mi><mtext>eq</mtext></msub><mo>=</mo><mn>0.045</mn><mspace width="1em"></mspace><mo>⇒</mo><mspace width="1em"></mspace><msub><mi>z</mi><mtext>eq</mtext></msub><mo>=</mo><mn>10</mn><mtext> m·s</mtext></mrow></math>
+      </div>
+      <p>The integral state is not an error that must disappear. In the disturbed equilibrium it is the extra memory needed to hold the level at the target. This requires a stable loop and sufficient pump authority.</p>
+      <figure class="handwritten"><img src="assets/pi-control/handwritten-nominal-equilibrium.png" alt="Handwritten PI nominal-equilibrium calculation"><figcaption>Figure 4. Handwritten nominal-equilibrium calculation: z<sub>eq</sub> = 0 when the bias already replaces all nominal losses.</figcaption></figure>
+
+      <h2>5. Forward Euler and anti-windup</h2>
+      <div class="formula" aria-label="Forward Euler updates for h and z">
+        <math display="block"><mrow><msub><mi>h</mi><mrow><mi>n</mi><mo>+</mo><mn>1</mn></mrow></msub><mo>=</mo><msub><mi>h</mi><mi>n</mi></msub><mo>+</mo><mi>Δ</mi><mi>t</mi><msub><mover><mi>h</mi><mo>˙</mo></mover><mi>n</mi></msub><mo>,</mo><mspace width="2em"></mspace><msub><mi>z</mi><mrow><mi>n</mi><mo>+</mo><mn>1</mn></mrow></msub><mo>=</mo><msub><mi>z</mi><mi>n</mi></msub><mo>+</mo><mi>Δ</mi><mi>t</mi><msub><mover><mi>z</mi><mo>˙</mo></mover><mi>n</mi></msub></mrow></math>
+      </div>
+      <p>Conditional anti-windup prevents z from moving farther into saturation while still allowing it to unwind when the error reverses.</p>
+      <pre><code>e = reference - h
+raw = bias + kp * e + ki * z
+u = np.clip(raw, 0.0, pump_max)
+blocked = (raw >= pump_max and e > 0) or (raw <= 0.0 and e < 0)
+zdot = 0.0 if blocked else e
+hdot = (u - k * h - leak) / area
+h_next = h + dt * hdot
+z_next = z + dt * zdot</code></pre>
+    </section>
+
+    <section id="results">
+      <h2>6. Independently regenerated disturbance illustration</h2>
+      <p>Both P and PI runs begin at h = 3 m, z = 0 with K<sub>p</sub> = 0.03. Extra leakage of 0.010 m³/s starts at 200 s. PI uses K<sub>i</sub> = 0.001 and Forward Euler uses Δt = 0.1 s.</p>
+      <figure><img src="assets/pi-control/pi-disturbance-response.png" alt="P and PI disturbance response comparison"><figcaption>Figure 5. P retains a 0.25 m offset; PI returns close to 3 m by the end of the run.</figcaption></figure>
+      <figure><img src="assets/pi-control/pi-integral-memory.png" alt="PI integral state approaching ten metre-seconds"><figcaption>Figure 6. The PI integral state approaches 10 m·s, retaining the extra 0.010 m³/s correction.</figcaption></figure>
+      <figure><img src="assets/pi-control/pi-selected-frames.png" alt="Selected single-tank PI response frames"><figcaption>Figure 7. Three static simulation frames; the animated page is linked above.</figcaption></figure>
+      <div class="table-wrap"><table><thead><tr><th>At 1,200 s</th><th>P controller</th><th>PI controller</th></tr></thead><tbody><tr><td>Water height</td><td>2.7500 m</td><td>3.0000 m (approx.)</td></tr><tr><td>Executed inflow</td><td>0.04250 m³/s</td><td>0.04500 m³/s (approx.)</td></tr><tr><td>Integral memory z</td><td>Not used</td><td>10.0 m·s (approx.)</td></tr></tbody></table></div>
+    </section>
+
+    <section id="verification">
+      <h2>7. Verification boundary and next step</h2>
+      <p>The equilibrium values are analytic. The figures use the stated report illustration parameters. The repository implementation is verified separately and uses its documented default disturbance scenario.</p>
+      <ul class="limits"><li>PI can remove persistent steady-state offsets if the equilibrium is feasible and stable.</li><li>The stored state z may remain nonzero when the current error is zero.</li><li>Anti-windup is a safeguard for actuator saturation, not a way to exceed physical pump capacity.</li></ul>
+      <pre><code>PYTHONPATH=projects/01-water-tank/src python -m water_tank.pi_control
+PYTHONPATH=projects/01-water-tank/src \
+  python -m unittest discover -s projects/01-water-tank/tests -v</code></pre>
+    </section>
+    <footer class="report-footer"><span>02 · Single tank / PI</span><span>Control Lab engineering report</span></footer>
+  </main>
+</body>
+</html>

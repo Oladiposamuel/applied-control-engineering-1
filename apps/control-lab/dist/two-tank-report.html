@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#10263f">
+  <meta name="description" content="Coupled two-tank control engineering report: conservation laws, interacting states, P and PI feedback, demand rejection, and verification.">
+  <title>Coupled Two-Tank Engineering Report | Control Lab</title>
+  <link rel="stylesheet" href="report.css">
+</head>
+<body>
+  <header class="report-bar">
+    <a class="report-brand" href="two-tank.html">CL · CONTROL LAB</a>
+    <nav class="report-nav" aria-label="Report navigation">
+      <a href="#model">Model</a><a href="#equilibrium">Equilibrium</a><a href="#control">Control</a><a href="#results">Results</a><a href="two-tank.html">Interactive simulation →</a>
+    </nav>
+  </header>
+  <main class="report">
+    <p class="report-kicker">03 · Coupled two tanks / P and PI / Engineering report</p>
+    <h1>Coupled two-tank control: one actuator, two interacting levels</h1>
+    <p class="subtitle">The pump fills Tank 1 while feedback measures Tank 2. Every control action reaches the controlled level through the inter-tank flow.</p>
+    <a class="companion" href="two-tank.html">Open the interactive companion →</a>
+
+    <figure><img src="assets/two-tank-report/two-tank-feedback-loop.png" alt="Coupled two-tank feedback-control diagram"><figcaption>Figure 1. The indirect control path is u → h₁ → q₁₂ → h₂.</figcaption></figure>
+
+    <section class="question">
+      <h2>1. The engineering question</h2>
+      <p>How can one inlet pump regulate the level in a downstream tank when the actuator does not feed that tank directly? The answer begins with two conservation laws and one coupling flow.</p>
+    </section>
+
+    <section id="model">
+      <h2>2. Coupled physical model</h2>
+      <p>The report model uses A₁ = 2 m², A₂ = 1.5 m², k₁₂ = 0.012 m²/s, and k₂ = 0.008 m²/s. The one-way linear transfer and Tank 2 outlet are</p>
+      <div class="formula" aria-label="q twelve equals k twelve times h one minus h two, q out equals k two h two">
+        <math display="block"><mrow><msub><mi>q</mi><mn>12</mn></msub><mo>=</mo><msub><mi>k</mi><mn>12</mn></msub><mo>(</mo><msub><mi>h</mi><mn>1</mn></msub><mo>−</mo><msub><mi>h</mi><mn>2</mn></msub><mo>)</mo><mo>,</mo><mspace width="2em"></mspace><msub><mi>q</mi><mtext>out</mtext></msub><mo>=</mo><msub><mi>k</mi><mn>2</mn></msub><msub><mi>h</mi><mn>2</mn></msub></mrow></math>
+      </div>
+      <div class="formula" aria-label="Tank one and Tank two conservation equations">
+        <math display="block"><mrow><msub><mi>A</mi><mn>1</mn></msub><msub><mover><mi>h</mi><mo>˙</mo></mover><mn>1</mn></msub><mo>=</mo><mi>u</mi><mo>−</mo><msub><mi>q</mi><mn>12</mn></msub><mo>,</mo><mspace width="2em"></mspace><msub><mi>A</mi><mn>2</mn></msub><msub><mover><mi>h</mi><mo>˙</mo></mover><mn>2</mn></msub><mo>=</mo><msub><mi>q</mi><mn>12</mn></msub><mo>−</mo><msub><mi>q</mi><mtext>out</mtext></msub></mrow></math>
+      </div>
+      <figure class="handwritten"><img src="assets/two-tank-report/handwritten-coupled-model.png" alt="Handwritten derivation of the coupled two-tank model"><figcaption>Figure 2. Conservation of volume applied separately to the two tanks.</figcaption></figure>
+
+      <p>For the open-loop initial condition h₁(0) = 2 m, h₂(0) = 0.5 m, and u = 0.040 m³/s, q₁₂ = 0.018 m³/s and qout = 0.004 m³/s. Therefore ḣ₁(0) = 0.011 m/s and ḣ₂(0) = 0.009333… m/s.</p>
+      <figure class="handwritten"><img src="assets/two-tank-report/handwritten-tank2-rates.png" alt="Handwritten Tank 2 flow and initial-rate calculations"><figcaption>Figure 3. Initial inter-tank flow, outlet flow, and state-rate calculations.</figcaption></figure>
+    </section>
+
+    <section id="equilibrium">
+      <h2>3. Open-loop equilibrium</h2>
+      <p>At equilibrium, every stored volume is constant, so the common steady flow is qin = q₁₂ = qout = 0.040 m³/s.</p>
+      <div class="formula" aria-label="Open loop equilibrium heights">
+        <math display="block"><mrow><msub><mi>h</mi><mn>2</mn></msub><mo>=</mo><mfrac><mn>0.040</mn><mn>0.008</mn></mfrac><mo>=</mo><mn>5.000</mn><mtext> m</mtext><mo>,</mo><mspace width="1.5em"></mspace><msub><mi>h</mi><mn>1</mn></msub><mo>=</mo><msub><mi>h</mi><mn>2</mn></msub><mo>+</mo><mfrac><mn>0.040</mn><mn>0.012</mn></mfrac><mo>=</mo><mn>8.333</mn><mtext> m</mtext></mrow></math>
+      </div>
+      <figure class="handwritten"><img src="assets/two-tank-report/handwritten-open-loop-equilibrium.png" alt="Handwritten open-loop equilibrium calculation"><figcaption>Figure 4. Open-loop equilibrium and the 3.333 m head difference needed to carry 0.040 m³/s between the tanks.</figcaption></figure>
+      <figure><img src="assets/two-tank-report/open-loop-report-simulation.png" alt="Open-loop simulation of both tank heights"><figcaption>Figure 5. Independently regenerated open-loop response approaching h₁ = 8.333 m and h₂ = 5.000 m.</figcaption></figure>
+    </section>
+
+    <section id="control">
+      <h2>4. Control Tank 2 through Tank 1</h2>
+      <p>For a target h₂ = 3 m with no extra demand, the nominal outlet is 0.008 × 3 = 0.024 m³/s. This is the natural controller bias. The matching upstream equilibrium is h₁ = 3 + 0.024/0.012 = 5 m.</p>
+      <div class="formula" aria-label="P and PI two tank control laws">
+        <math display="block"><mrow><mi>e</mi><mo>=</mo><mn>3</mn><mo>−</mo><msub><mi>h</mi><mn>2</mn></msub><mo>,</mo><mspace width="1em"></mspace><msub><mi>u</mi><mi>P</mi></msub><mo>=</mo><mtext>clip</mtext><mo>(</mo><mn>0.024</mn><mo>+</mo><msub><mi>K</mi><mi>p</mi></msub><mi>e</mi><mo>,</mo><mn>0</mn><mo>,</mo><mn>0.10</mn><mo>)</mo></mrow></math>
+        <math display="block"><mrow><mover><mi>z</mi><mo>˙</mo></mover><mo>=</mo><mi>e</mi><mo>,</mo><mspace width="1em"></mspace><msub><mi>u</mi><mtext>PI</mtext></msub><mo>=</mo><mtext>clip</mtext><mo>(</mo><mn>0.024</mn><mo>+</mo><msub><mi>K</mi><mi>p</mi></msub><mi>e</mi><mo>+</mo><msub><mi>K</mi><mi>i</mi></msub><mi>z</mi><mo>,</mo><mn>0</mn><mo>,</mo><mn>0.10</mn><mo>)</mo></mrow></math>
+      </div>
+
+      <h2>5. Add a downstream demand</h2>
+      <p>A constant demand d = 0.006 m³/s is withdrawn from Tank 2 after 400 s. It enters only the second conservation equation.</p>
+      <div class="formula" aria-label="Tank two equation with demand">
+        <math display="block"><mrow><msub><mi>A</mi><mn>2</mn></msub><msub><mover><mi>h</mi><mo>˙</mo></mover><mn>2</mn></msub><mo>=</mo><msub><mi>q</mi><mn>12</mn></msub><mo>−</mo><msub><mi>k</mi><mn>2</mn></msub><msub><mi>h</mi><mn>2</mn></msub><mo>−</mo><mi>d</mi></mrow></math>
+      </div>
+      <figure class="handwritten"><img src="assets/two-tank-report/handwritten-demand-disturbance.png" alt="Handwritten demand-disturbance equilibrium calculation"><figcaption>Figure 6. With h₂ = 3 m and d = 0.006 m³/s, the required pump flow becomes 0.030 m³/s and h₁ becomes 5.5 m.</figcaption></figure>
+
+      <p>The report comparison uses Kp = 0.03 m²/s, Ki = 0.0001 m/s², pump limits of 0–0.10 m³/s, and the nominal bias of 0.024 m³/s. A P-only controller must retain an error to request the extra flow:</p>
+      <div class="formula" aria-label="P equilibrium Tank two level equals 2.8421 metres">
+        <math display="block"><mrow><msub><mi>h</mi><mrow><mn>2</mn><mo>,</mo><mi>P</mi></mrow></msub><mo>=</mo><mfrac><mrow><mn>0.024</mn><mo>+</mo><mn>0.03</mn><mo>×</mo><mn>3</mn><mo>−</mo><mn>0.006</mn></mrow><mrow><mn>0.008</mn><mo>+</mo><mn>0.03</mn></mrow></mfrac><mo>=</mo><mn>2.8421</mn><mtext> m</mtext></mrow></math>
+      </div>
+      <p>For PI at the desired equilibrium, the integral term supplies 0.006 m³/s, so z = 0.006/0.0001 = 60 m·s. The current error can then return to zero.</p>
+    </section>
+
+    <section id="results">
+      <h2>6. P-versus-PI demand response</h2>
+      <p>Both controlled runs start at the nominal equilibrium (h₁, h₂) = (5, 3) m. Demand starts at 400 s and Forward Euler uses Δt = 0.2 s.</p>
+      <figure><img src="assets/two-tank-report/p-vs-pi-tank2-response.png" alt="P and PI Tank 2 demand-response comparison"><figcaption>Figure 7. P settles below the Tank 2 target; PI stores the missing correction and returns the level close to 3 m.</figcaption></figure>
+      <figure><img src="assets/two-tank-report/pi-two-tank-heights.png" alt="PI response of both coupled tank heights"><figcaption>Figure 8. Under PI control, Tank 1 rises to provide the head difference required to maintain Tank 2 at its target.</figcaption></figure>
+      <figure><img src="assets/two-tank-report/two-tank-selected-frames.png" alt="Selected frames from the coupled two-tank response"><figcaption>Figure 9. Selected physical states; the companion page animates these same calculated states and flows.</figcaption></figure>
+
+      <div class="table-wrap"><table><thead><tr><th>Near 2,600 s</th><th>P controller</th><th>PI controller</th></tr></thead><tbody><tr><td>Tank 2 height</td><td>2.8421 m</td><td>3.0000 m (approx.)</td></tr><tr><td>Pump flow</td><td>0.02874 m³/s</td><td>0.03000 m³/s (approx.)</td></tr><tr><td>Tank 1 height</td><td>5.23684 m</td><td>5.5000 m (approx.)</td></tr><tr><td>Integral memory z</td><td>Not used</td><td>60 m·s (approx.)</td></tr></tbody></table></div>
+
+      <h2>7. System-level conservation check</h2>
+      <p>Adding the two tank balances cancels q₁₂. The internal transfer can redistribute volume but cannot create or destroy it.</p>
+      <div class="formula" aria-label="Total volume rate equals pump minus outlet minus demand">
+        <math display="block"><mrow><mfrac><mi>d</mi><mrow><mi>d</mi><mi>t</mi></mrow></mfrac><mo>(</mo><msub><mi>V</mi><mn>1</mn></msub><mo>+</mo><msub><mi>V</mi><mn>2</mn></msub><mo>)</mo><mo>=</mo><mi>u</mi><mo>−</mo><msub><mi>q</mi><mtext>out</mtext></msub><mo>−</mo><mi>d</mi></mrow></math>
+      </div>
+    </section>
+
+    <section id="verification">
+      <h2>8. Verification boundary and limitations</h2>
+      <ul class="limits"><li>The equilibrium results are analytic; the plotted figures use the stated illustrative parameters.</li><li>The link law is a one-way linear approximation. A real hydraulic link may be nonlinear and may reverse direction.</li><li>PI removes a feasible constant offset, but cannot overcome insufficient pump capacity.</li><li>Real systems also involve sensor noise, delays, valve dynamics, overflow limits, and actuator constraints.</li></ul>
+      <pre><code>PYTHONPATH=projects/02-coupled-two-tank/src python -m two_tank.simulation
+PYTHONPATH=projects/02-coupled-two-tank/src \
+  python -m unittest discover -s projects/02-coupled-two-tank/tests -v</code></pre>
+    </section>
+    <footer class="report-footer"><span>03 · Coupled two tanks / P and PI</span><span>Control Lab engineering report</span></footer>
+  </main>
+</body>
+</html>

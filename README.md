@@ -28,6 +28,12 @@ system:
 
 - [Open Control Lab](https://control-lab-alpha.vercel.app/)
 - [Read the proportional-control engineering report](https://control-lab-alpha.vercel.app/p-control-report)
+- [Read the PI-control engineering report](https://control-lab-alpha.vercel.app/pi-control-report)
+- [Read the coupled two-tank engineering report](https://control-lab-alpha.vercel.app/two-tank-report)
+
+The repository versions, including all equations and report figures, are available in
+[PI control](projects/01-water-tank/docs/pi-control/README.md) and
+[coupled two-tank control](projects/02-coupled-two-tank/README.md).
 
 The deployable static application is maintained in [`apps/control-lab`](apps/control-lab/README.md).
 
