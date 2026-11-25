@@ -10,9 +10,13 @@ $$
 
 A controller that regulates speed is therefore not the same controller as one that attempts a station stop. This report keeps plant physics, tracking control, actuator limits, anti-windup, and braking feasibility as separate concepts.
 
+### Presentation audit
+
+The initial interactive implementation exposed six live equations, six current/final metrics, five plots, and multiple expanded input groups. Although each number came from the same simulation trace, the result duplicated information and gave internal controller memory the same visual priority as position, speed, force, and stopping feasibility. Guided by the supplied control architecture, the revised dashboard presents those four physical decisions only. Advanced inputs remain available in collapsed groups, final outcome moves into the interpretation panel, and integral-memory detail remains in this report and the reproducible exports. The simulation mathematics and data contract are unchanged.
+
 ## 2. Free-body model and assumptions
 
-![Train free-body diagram](docs/free-body-diagram.svg)
+![Train free-body diagram](docs/source-notes/01_train_free_body_diagram.png)
 
 On a level track the vertical normal force and weight cancel. Taking forward as positive, the moving longitudinal balance is
 
@@ -34,6 +38,10 @@ v\\[2pt](u-F_{\mathrm{roll}}-cv-F_d)/m
 $$
 
 The model uses SI units. \(F_{\mathrm{roll}}\) and \(F_d\) are newtons; \(c\) is N·s/m, so \(cv\) is newtons. This is a linear teaching approximation, not a claim about detailed train aerodynamics.
+
+![Conceptual PID and braking-supervisor architecture](docs/source-notes/02_train_pid_control_architecture.png)
+
+The architecture image provides the presentation rule used in the simulator: show the target and measured state, the signed force that is actually executed, and the stopping-feasibility decision. Internal controller terms remain available in the detailed report rather than being repeated as permanent dashboard readouts.
 
 At \(v=0\), blindly subtracting constant rolling resistance could generate backward motion. The implemented standstill rule is deterministic:
 
@@ -83,6 +91,10 @@ This ordering reproduces the supplied 2 s traction calculation: from \((x_0,v_0)
 
 When Euler predicts a negative next speed, the implementation solves the constant-force, linear-resistance motion inside that step for the stop time and distance. This preserves \(v\ge0\) and monotonic \(x\). In the 10 kN active-braking experiment, the \(\Delta t=0.1\) result stopped at 318.837 m absolute position. Step refinement produced 319.554 m at 0.2 s and 318.473 m at 0.05 s; the event result converges rather than drifting backward.
 
+![Three worked Forward Euler braking steps](docs/source-notes/08_braking_three_euler_steps.png)
+
+The handwritten values \(v_1=18.9\), \(x_1=20\), \(v_2\approx17.83\), \(x_2=38.9\), \(v_3\approx16.78\), and \(x_3\approx56.73\) are explicit regression targets. They also confirm that position uses the old velocity at each step.
+
 ## 6. Speed regulation
 
 With \(v_r=25\) m/s, the nominal feedforward bias is
@@ -98,6 +110,10 @@ $$
 $$
 
 which gives \(v=23\) m/s. Simulation produced 23.0011 m/s at 180 s.
+
+![P-controller steady-state offset calculation](docs/source-notes/11_p_controller_steady_state_offset.png)
+
+The note correctly identifies the structural issue: at the requested speed the P term becomes zero, so it cannot supply the unknown constant force. A lasting P error supplies that force; PI instead stores the required correction in its integral state.
 
 For PI,
 
@@ -121,6 +137,10 @@ $$
 
 At \(x=400\) m, \(v=20\) m/s, \(x_r=500\) m, \(K_p=100\) N/m, and \(K_d=800\) N·s/m, P requests +10 kN while PD requests −6 kN. The derivative term recognizes that the train is already approaching quickly.
 
+![PD position-control calculation](docs/source-notes/14_pd_position_control.png)
+
+The source note reports −0.3 m/s² from −6 kN divided by 20,000 kg. In the implemented plant, −6 kN is the signed actuator request; rolling and velocity resistance are then subtracted separately by the free-body equation. This distinction avoids counting resistance inside the controller and again inside the plant.
+
 PID adds
 
 $$
@@ -137,6 +157,10 @@ The prescribed baseline gains do not stop successfully. PD stopped at 668.519 m;
 The algorithm computes raw force from the old integral state, clips it, and suppresses \(\dot z\) only when the error would drive the raw request farther into the active saturation limit. It permits integration that unwinds saturation.
 
 The initial 500 m error requests 50 kN, while the plant can execute 40 kN. An unrestricted 1 s controller-only hand step would make \(z_x=500\) m·s and add 2.5 kN. Conditional integration blocks that outward update.
+
+![PID saturation and unrestricted integral-windup calculation](docs/source-notes/17_pid_integral_windup.png)
+
+The note is used as the no-protection reference: raw force is 50 kN, applied force is limited to 40 kN, and unrestricted memory continues to grow. Anti-windup changes only the memory update; it does not remove the actuator limit.
 
 ![Anti-windup comparison](results/g_anti_windup/comparison.png)
 
@@ -170,6 +194,10 @@ make test-train
 ```
 
 The Python suite currently contains 29 Project 03 tests. The browser build additionally compares six selected JS trace samples with the generated Python fixture to a tolerance of \(10^{-8}\).
+
+![Contact sheet of the supplied handwritten calculations](docs/source-notes/handwriting_contact_sheet.jpg)
+
+The retained contact sheet makes the calculation trail auditable. Focused source images are placed beside the corresponding derivations above; typeset equations and executable tests resolve abbreviated notation and rounding.
 
 ## 11. Interpretation policy and limitations
 

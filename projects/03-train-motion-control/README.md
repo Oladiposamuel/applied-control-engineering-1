@@ -8,7 +8,15 @@ This project extends the earlier [single-tank](../01-water-tank/README.md) and [
 
 > This is a simplified educational simulation. It is not a high-fidelity railway model and is not certified for train-control or rail-safety decisions.
 
-![Longitudinal train free-body diagram](docs/free-body-diagram.svg)
+## Interface critique and revision
+
+The first dashboard version was mathematically consistent but visually over-instrumented: six live equation boxes, six summary cards, five plots, and three open groups of numerical inputs repeated the same state. The supplied architecture and worked calculations suggest a clearer learning sequence—where is the train, how fast is it moving, what signed force is actually applied, and can it stop in the remaining distance?
+
+The interactive page now keeps those four answers visible. Plant constants, gains, limits, and timing remain editable but are collapsed until requested. The separate integral-memory plot and permanent final-outcome card were removed; integral windup is taught with the worked source calculation below, while the final simulated outcome appears in the interpretation panel. Nothing was removed from the underlying model or exported data.
+
+![Longitudinal train free-body diagram showing traction, resistance, normal force and weight](docs/source-notes/01_train_free_body_diagram.png)
+
+*Source free-body diagram used to check the implementation's force signs. On level track, normal force and weight cancel; traction acts forward and rolling plus velocity-dependent resistance act backward.*
 
 ## Problem statement
 
@@ -38,6 +46,10 @@ $$
 u_{\mathrm{applied}}=\operatorname{clip}\!\left(u_{\mathrm{requested}},-F_{\mathrm{brake,max}},F_{\mathrm{traction,max}}\right).
 $$
 
+![Conceptual closed-loop train PID architecture](docs/source-notes/02_train_pid_control_architecture.png)
+
+*The implementation follows this separation: the position controller requests a signed force, the braking-feasibility supervisor checks whether that request is physically safe to execute, and measured position and velocity close the negative-feedback loop.*
+
 At standstill, negative commands hold the train stopped. A positive request must exceed rolling resistance plus the opposing disturbance before forward acceleration begins. The forward-only solver never permits negative speed or backward displacement.
 
 ## Forward Euler and the stop event
@@ -53,6 +65,10 @@ x_{k+1}=x_k+\Delta t\,v_k.
 $$
 
 If a full Euler step would produce \(v_{k+1}<0\), the solver locates the within-step stop under the constant applied force and linear resistance, advances only to that event, and holds \(v=0\). It does not move the train backward to disguise a large time step.
+
+![Three handwritten Forward Euler braking steps](docs/source-notes/08_braking_three_euler_steps.png)
+
+*The three worked braking steps are regression anchors: \(v_1=18.9\) m/s and \(x_1=20\) m; \(v_2\approx17.83\) m/s and \(x_2=38.9\) m; \(v_3\approx16.78\) m/s and \(x_3\approx56.73\) m. The automated tests reproduce these values using old-state Euler ordering.*
 
 ## Controller families
 
@@ -78,6 +94,10 @@ $$
 
 Here \(z_v\) has units of metres and \(K_{i,v}\) has units N/m. With a previously unknown 3,000 N opposing force, the analytical unsaturated P equilibrium is 23 m/s. PI can store the missing force: \(z_{v,eq}=3000/100=30\) m.
 
+![Hand calculation of the P-controller steady-state speed offset](docs/source-notes/11_p_controller_steady_state_offset.png)
+
+*The calculation exposes the P-only limitation: rejecting a constant extra resistance requires a permanent nonzero error. That is the specific problem answered by the PI controller.*
+
 ![Speed P and PI comparison](results/d_speed_pi/comparison.png)
 
 The executed baseline experiment ended at **23.001 m/s for P** and **25.010 m/s for PI** after the disturbance. The PI integral state was **29.232 m** at 180 s and was still converging toward the analytical 30 m equilibrium.
@@ -102,11 +122,19 @@ $$
 
 The derivative term is velocity damping: it opposes a fast approach even while the station remains ahead. The position integral state has units m·s, which is deliberately different from the speed-PI state.
 
+![Hand calculation of the PD position-control force](docs/source-notes/14_pd_position_control.png)
+
+*At \(x=400\) m and \(v=20\) m/s, the +10 kN position term and −16 kN velocity term give a −6 kN braking request and −0.3 m/s² acceleration before passive resistance is included in the plant balance.*
+
 The prescribed learning gains are not a successful station-stop tune. Under the ideal-model comparison from \(x=400\) m and \(v=20\) m/s, PD crossed the station at **17.319 m/s** and stopped at **668.519 m**. PID with \(z_x(0)=200\) m·s crossed at **17.799 m/s** and stopped at **672.895 m**. These poor results are retained because they expose why a tracking controller alone is not a safety guarantee.
 
 ## Saturation and conditional anti-windup
 
 At \(x=0\), \(v=0\), and \(x_r=500\) m, the learning PID requests 50,000 N but the actuator can execute only 40,000 N. Conditional integration freezes the integral when its error would drive a saturated request farther outside the feasible range, while allowing it to unwind when the error reverses.
+
+![Hand calculation showing PID saturation and integral windup](docs/source-notes/17_pid_integral_windup.png)
+
+*The unrestricted one-second hand step accumulates \(z=500\) m·s and adds 2.5 kN even though the actuator is already saturated. The implemented conditional anti-windup prevents that outward memory update.*
 
 ![Position PID anti-windup comparison](results/g_anti_windup/comparison.png)
 
@@ -183,6 +211,10 @@ The browser model is independently checked at selected samples against a fixture
 cd apps/control-lab
 npm run build
 ```
+
+![Contact sheet of the supplied handwritten derivations](docs/source-notes/handwriting_contact_sheet.jpg)
+
+*The complete source-note contact sheet is retained for traceability. The report and tests use the focused calculations above as verification anchors; typeset equations remain authoritative where handwriting is abbreviated or rounded.*
 
 ## Model limits and future work
 
