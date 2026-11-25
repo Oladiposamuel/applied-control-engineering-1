@@ -12,7 +12,9 @@ A controller that regulates speed is therefore not the same controller as one th
 
 ### Presentation audit
 
-The initial interactive implementation exposed six live equations, six current/final metrics, five plots, and multiple expanded input groups. Although each number came from the same simulation trace, the result duplicated information and gave internal controller memory the same visual priority as position, speed, force, and stopping feasibility. Guided by the supplied control architecture, the revised dashboard presents those four physical decisions only. Advanced inputs remain available in collapsed groups, final outcome moves into the interpretation panel, and integral-memory detail remains in this report and the reproducible exports. The simulation mathematics and data contract are unchanged.
+The earlier dashboard could stop moving on screen once a normalized rail coordinate hit its cap, even while the position readout continued changing. The revised rail spans the whole trajectory and marks the station on the same linear scale as the train. The selected simulation sample drives the train, forces, speed, numerical readouts and plot cursor. Playback accumulates elapsed time separately from the integer sample index, and the lab opens paused so the initial calculation is visible.
+
+The browser now loads independently configured worked examples. The ideal station-control examples intentionally set both resistance coefficients to zero to reproduce the handwritten accelerations. The constant-deceleration reference uses the exact kinematic equations until standstill, separate from the Euler-based plant and brake supervisor. Integral memory is displayed where it explains the speed PI or windup example. The Python model and reproducible exports remain unchanged.
 
 ## 2. Free-body model and assumptions
 
@@ -193,7 +195,7 @@ make run-train
 make test-train
 ```
 
-The Python suite currently contains 29 Project 03 tests. The browser build additionally compares six selected JS trace samples with the generated Python fixture to a tolerance of \(10^{-8}\).
+The Python suite currently contains 29 Project 03 tests. The browser build compares six selected JS trace samples with the generated Python fixture to a tolerance of \(10^{-8}\) and checks the working inputs and calculated anchors of the 17 selectable examples.
 
 ![Contact sheet of the supplied handwritten calculations](docs/source-notes/handwriting_contact_sheet.jpg)
 

@@ -98,7 +98,7 @@
     }
     const result=advance?step(state,request,disturbance,p):{state,forces:forceBalance(state.v,request,disturbance,p),stopEvent:false,stopTimeOffset:-1,distance:0};
     const zRate=supervisor?0:control.integralRate;
-    return {time,x:state.x,v:state.v,z,disturbance,control,feasibility:stop,request,...result.forces,supervisor,supervisorLatched,antiWindup:control.antiWindup||supervisor,zRate,nextState:result.state,nextZ:z+p.dt*zRate,stopEvent:result.stopEvent,stopTimeOffset:result.stopTimeOffset};
+    return {time,x:state.x,v:state.v,z,disturbance,control,feasibility:stop,request,...result.forces,supervisor,supervisorLatched,antiWindup:control.antiWindup||supervisor,zRate,nextState:result.state,nextZ:advance?z+p.dt*zRate:z,stopEvent:result.stopEvent,stopTimeOffset:result.stopTimeOffset};
   }
 
   function simulate(input) {
@@ -111,5 +111,20 @@
     return {p,frames,final:frames[frames.length-1]};
   }
 
-  root.TrainModel={validate,controller,feasibility,forceBalance,step,simulate};
+  // The notes' constant-deceleration comparison is a kinematic reference,
+  // not an Euler run or a prediction of the resistance-based plant.
+  function simulateConstantStop(p) {
+    validate(p);
+    const a=-p.fixedForce/p.mass;
+    if (!(a>0) || p.mode!=='open_loop' || p.rollingResistance || p.velocityResistance || p.disturbance || p.fixedForce < -p.brakeMax) throw new Error('Constant-stop reference requires ideal, unsaturated braking');
+    const stopTime=p.initialSpeed/a;
+    const frames=Array.from({length:Math.round(p.duration/p.dt)+1},(_,i)=>{
+      const time=i*p.dt,t=Math.min(time,stopTime);
+      const state={x:p.initialPosition+p.initialSpeed*t-.5*a*t*t,v:Math.max(0,p.initialSpeed-a*t)};
+      return evaluate(state,0,time,time>=stopTime?{...p,fixedForce:0}:p,false);
+    });
+    return {p,frames,final:frames.at(-1)};
+  }
+
+  root.TrainModel={validate,controller,feasibility,forceBalance,step,simulate,simulateConstantStop};
 })(globalThis);

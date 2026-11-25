@@ -4,7 +4,7 @@
   "private": true,
   "description": "Interactive water-tank control engineering simulations.",
   "scripts": {
-    "check": "node scripts/validate-site.mjs && node scripts/validate-train-parity.mjs",
+    "check": "node scripts/validate-site.mjs && node scripts/validate-train-parity.mjs && node scripts/validate-train-examples.mjs",
     "build": "npm run check",
     "dev": "npx --yes vercel@latest dev",
     "deploy": "npx --yes vercel@latest",
