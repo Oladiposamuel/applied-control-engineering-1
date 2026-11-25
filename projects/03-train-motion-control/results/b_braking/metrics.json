@@ -1,0 +1,46 @@
+{
+  "all_values_finite": true,
+  "analysis": {
+    "stop_event_convergence": {
+      "0.05": {
+        "stop_position_m": 318.4729313563747,
+        "stop_time_s": 24.230294526817733
+      },
+      "0.2": {
+        "stop_position_m": 319.5544466447984,
+        "stop_time_s": 24.185231389800066
+      },
+      "1.0": {
+        "stop_position_m": 325.1268288656175,
+        "stop_time_s": 23.953048797265936
+      }
+    }
+  },
+  "anti_windup_activations": 0,
+  "controller_mode": "open_loop",
+  "final_integral_state": 0.0,
+  "final_position_error_m": null,
+  "final_position_m": 318.836840845794,
+  "final_speed_error_mps": null,
+  "final_speed_mps": 0.0,
+  "first_stop_position_m": 318.836840845794,
+  "first_stop_time_s": 24.215131631425262,
+  "integral_units": null,
+  "max_abs_acceleration_mps2": 1.1,
+  "minimum_stopping_margin_m": 181.16315915420603,
+  "peak_applied_braking_N": 10000.0,
+  "peak_applied_traction_N": 0.0,
+  "peak_position_overshoot_m": null,
+  "peak_requested_braking_N": 10000.0,
+  "peak_requested_traction_N": 0.0,
+  "position_settling_time_s": null,
+  "saturated_steps": 0,
+  "saturation_duration_s": 0.0,
+  "speed_settling_time_s": null,
+  "station_crossing_speed_mps": null,
+  "station_crossing_time_s": null,
+  "steady_window_mean_speed_error_mps": null,
+  "stop_status": "stopped_elsewhere",
+  "supervisor_override_duration_s": 0.0,
+  "supervisor_override_steps": 0
+}

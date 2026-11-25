@@ -1,6 +1,6 @@
 # Control Lab dashboard
 
-This directory is a standalone, static Vercel project for the interactive water-tank control engineering dashboard.
+This directory is a standalone, static Vercel project for the interactive control-engineering dashboard.
 
 ## Live deployment
 
@@ -10,10 +10,10 @@ The local directory is linked to the `control-lab` project in Samuel's Vercel ac
 
 ## Project layout
 
-- `dist/` contains the deployable P, PI, and coupled two-tank pages.
+- `dist/` contains the deployable P, PI, coupled two-tank, and train-motion pages.
 - `scripts/validate-site.mjs` verifies page entry points, local assets, DOM IDs, and JavaScript syntax.
 - `vercel.json` tells Vercel to run the validation build and publish `dist/`.
-- Vercel clean URLs expose `/pi-control` and `/two-tank`; existing `.html` links are redirected automatically.
+- Vercel clean URLs expose `/pi-control`, `/two-tank`, and `/train-control`; existing `.html` links are redirected automatically.
 - `.openai/hosting.json` is retained only for the existing ChatGPT Site and is excluded from Vercel uploads.
 
 ## Validate locally

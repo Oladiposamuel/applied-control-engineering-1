@@ -1,0 +1,41 @@
+{
+  "controller": {
+    "fixed_force": 30000,
+    "kd_position": 800.0,
+    "ki_position": 5.0,
+    "ki_speed": 100.0,
+    "kp_position": 100.0,
+    "kp_speed": 1000.0,
+    "mode": "open_loop",
+    "nominal_disturbance": 0.0,
+    "position_target": 500.0,
+    "speed_target": 25.0
+  },
+  "experiment": "a_open_loop",
+  "integral_state_units": null,
+  "notes": "Open-loop traction and equilibrium",
+  "plant": {
+    "brake_max": 40000.0,
+    "mass": 20000.0,
+    "rolling_resistance": 2000.0,
+    "traction_max": 40000.0,
+    "velocity_resistance": 500.0
+  },
+  "scenario": {
+    "available_deceleration": 2.0,
+    "disturbance": 0.0,
+    "disturbance_at": null,
+    "dt": 0.1,
+    "duration": 240,
+    "initial_integral": 0.0,
+    "initial_position": 0.0,
+    "initial_speed": 10,
+    "response_delay": 0.0,
+    "safety_margin": 5.0
+  },
+  "software": {
+    "implementation": "cpython",
+    "numpy": "2.5.4",
+    "python": "3.12.3"
+  }
+}

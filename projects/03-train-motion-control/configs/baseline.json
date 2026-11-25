@@ -1,0 +1,13 @@
+{
+  "plant": {
+    "mass": 20000.0,
+    "rolling_resistance": 2000.0,
+    "velocity_resistance": 500.0,
+    "traction_max": 40000.0,
+    "brake_max": 40000.0
+  },
+  "targets": {"speed_mps": 25.0, "position_m": 500.0},
+  "speed_controller": {"kp": 1000.0, "ki": 100.0},
+  "position_controller": {"kp": 100.0, "ki": 5.0, "kd": 800.0},
+  "simulation": {"dt": 0.1, "forward_only": true}
+}

@@ -19,17 +19,20 @@ projects/<number>-<name>/
 | --- | --- | --- |
 | [01 — Water tank](projects/01-water-tank/README.md) | Open-loop, P, and PI water-level control | Phases 1–3 complete |
 | [02 — Coupled two-tank](projects/02-coupled-two-tank/README.md) | Mass-conserving two-tank dynamics, P and PI control | Complete |
+| [03 — Train motion control](projects/03-train-motion-control/README.md) | Newtonian motion, speed P/PI, position P/PD/PID, braking feasibility | Complete |
 
 ## Interactive dashboard
 
 The browser-based Control Lab provides live, mathematically synchronized
-simulations for proportional control, PI control, and the coupled two-tank
-system:
+simulations for proportional control, PI control, the coupled two-tank
+system, and signed-force train motion:
 
 - [Open Control Lab](https://control-lab-alpha.vercel.app/)
 - [Read the proportional-control engineering report](https://control-lab-alpha.vercel.app/p-control-report)
 - [Read the PI-control engineering report](https://control-lab-alpha.vercel.app/pi-control-report)
 - [Read the coupled two-tank engineering report](https://control-lab-alpha.vercel.app/two-tank-report)
+- [Open the interactive train-control project](https://control-lab-alpha.vercel.app/train-control)
+- [Read the train-control engineering report](https://control-lab-alpha.vercel.app/train-control-report)
 
 The repository versions, including all equations and report figures, are available in
 [PI control](projects/01-water-tank/docs/pi-control/README.md) and

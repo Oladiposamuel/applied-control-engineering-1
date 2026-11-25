@@ -1,0 +1,96 @@
+{
+  "controller": {
+    "fixed_force": 30000.0,
+    "kd_position": 800.0,
+    "ki_position": 5.0,
+    "ki_speed": 100.0,
+    "kp_position": 100.0,
+    "kp_speed": 1000.0,
+    "mode": "speed_pi",
+    "nominal_disturbance": 0.0,
+    "position_target": 500.0,
+    "speed_target": 25.0
+  },
+  "plant": {
+    "brake_max": 40000.0,
+    "mass": 20000.0,
+    "rolling_resistance": 2000.0,
+    "traction_max": 40000.0,
+    "velocity_resistance": 500.0
+  },
+  "samples": [
+    {
+      "a_mps2": 0.75,
+      "force_applied_N": 24500.0,
+      "force_requested_N": 24500.0,
+      "index": 0,
+      "t": 0.0,
+      "v_mps": 15.0,
+      "x_m": 0.0,
+      "z_integral": 0.0
+    },
+    {
+      "a_mps2": 0.749375,
+      "force_applied_N": 24525.0,
+      "force_requested_N": 24525.0,
+      "index": 1,
+      "t": 0.1,
+      "v_mps": 15.075,
+      "x_m": 1.5,
+      "z_integral": 1.0
+    },
+    {
+      "a_mps2": 0.6838686052126369,
+      "force_applied_N": 24985.07376259492,
+      "force_requested_N": 24985.07376259492,
+      "index": 50,
+      "t": 5.0,
+      "v_mps": 18.61540331668436,
+      "x_m": 83.99522920720722,
+      "z_integral": 41.004770792792826
+    },
+    {
+      "a_mps2": 0.4175219846683208,
+      "force_applied_N": 24232.633759878532,
+      "force_requested_N": 24232.633759878532,
+      "index": 100,
+      "t": 10.0,
+      "v_mps": 21.764388133024234,
+      "x_m": 185.02978107097252,
+      "z_integral": 64.97021892902764
+    },
+    {
+      "a_mps2": 0.33290870934236355,
+      "force_applied_N": 23483.7568000674,
+      "force_requested_N": 23483.7568000674,
+      "index": 150,
+      "t": 15.0,
+      "v_mps": 23.65116522644026,
+      "x_m": 298.6507797349236,
+      "z_integral": 76.34922026507658
+    },
+    {
+      "a_mps2": 0.2420509405090571,
+      "force_applied_N": 22373.462750423707,
+      "force_requested_N": 22373.462750423707,
+      "index": 199,
+      "t": 19.900000000000002,
+      "v_mps": 25.06488788048513,
+      "x_m": 418.11649369091185,
+      "z_integral": 79.38350630908839
+    }
+  ],
+  "scenario": {
+    "available_deceleration": 2.0,
+    "disturbance": 3000,
+    "disturbance_at": 10,
+    "dt": 0.1,
+    "duration": 20,
+    "initial_integral": 0.0,
+    "initial_position": 0,
+    "initial_speed": 15,
+    "response_delay": 0.0,
+    "safety_margin": 5.0
+  },
+  "tolerance": 1e-08
+}

@@ -1,0 +1,50 @@
+{
+  "all_values_finite": true,
+  "analysis": {
+    "analytic_equilibrium_speed_mps": 56.0,
+    "euler_convergence": {
+      "0.05": {
+        "position_error_m": -0.01708557402525912,
+        "speed_error_mps": 0.00042713934977456347
+      },
+      "0.2": {
+        "position_error_m": -0.06812850451024133,
+        "speed_error_mps": 0.001703212612618188
+      },
+      "1.0": {
+        "position_error_m": -0.33494197474101384,
+        "speed_error_mps": 0.008373549368663191
+      }
+    },
+    "final_euler_position_error_m": -0.03413551596531761,
+    "final_euler_speed_error_mps": 0.0008533878992906807,
+    "final_exact_speed_mps": 55.88597739987335
+  },
+  "anti_windup_activations": 0,
+  "controller_mode": "open_loop",
+  "final_integral_state": 0.0,
+  "final_position_error_m": null,
+  "final_position_m": 11604.5267684891,
+  "final_speed_error_mps": null,
+  "final_speed_mps": 55.88683078777264,
+  "first_stop_position_m": null,
+  "first_stop_time_s": null,
+  "integral_units": null,
+  "max_abs_acceleration_mps2": 1.15,
+  "minimum_stopping_margin_m": -11879.764652019037,
+  "peak_applied_braking_N": 0.0,
+  "peak_applied_traction_N": 30000.0,
+  "peak_position_overshoot_m": null,
+  "peak_requested_braking_N": 0.0,
+  "peak_requested_traction_N": 30000.0,
+  "position_settling_time_s": null,
+  "saturated_steps": 0,
+  "saturation_duration_s": 0.0,
+  "speed_settling_time_s": null,
+  "station_crossing_speed_mps": 30.502811638844076,
+  "station_crossing_time_s": 23.57343688488864,
+  "steady_window_mean_speed_error_mps": null,
+  "stop_status": "not_stopped",
+  "supervisor_override_duration_s": 0.0,
+  "supervisor_override_steps": 0
+}

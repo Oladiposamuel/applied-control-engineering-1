@@ -1,0 +1,11 @@
+{
+  "a_open_loop": "30 kN traction from 10 m/s; compare Euler with exact solution",
+  "b_braking": "10 kN active brake from 20 m/s plus passive resistance",
+  "c_speed_p": "25 m/s biased P target with 3 kN disturbance at 80 s",
+  "d_speed_pi": "same scenario as C with integral action",
+  "e_position_pd": "ideal-model P versus PD from x=400 m, v=20 m/s",
+  "f_position_pid": "PID with initial integral memory 200 m*s",
+  "g_anti_windup": "500 m target from rest, raw command initially saturates",
+  "h_brake_supervisor": "infeasible 100 m remaining / 20 m/s example",
+  "i_robustness": "speed P versus PI with a 6 kN disturbance"
+}

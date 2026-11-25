@@ -1,0 +1,62 @@
+{
+  "all_values_finite": true,
+  "analysis": {
+    "bounded_motor_case": {
+      "final_integral_m": 11.070656784200471,
+      "final_speed_mps": 16.446601533712617,
+      "saturated_steps": 3227,
+      "traction_limit_N": 16000
+    },
+    "disturbance_cases": {
+      "3000_N_at_80_s": {
+        "final_integral_m": 29.232408012995037,
+        "final_speed_mps": 25.010220199595715
+      },
+      "6000_N_at_60_s": {
+        "final_integral_m": 59.066838437970986,
+        "final_speed_mps": 24.950240595452843
+      }
+    },
+    "timestep_convergence": {
+      "0.05": {
+        "final_integral_m": 59.066838437970986,
+        "final_speed_mps": 24.950240595452843
+      },
+      "0.1": {
+        "final_integral_m": 59.06314950745433,
+        "final_speed_mps": 24.949171934145713
+      },
+      "0.2": {
+        "final_integral_m": 59.05616690166297,
+        "final_speed_mps": 24.947011915571675
+      }
+    }
+  },
+  "anti_windup_activations": 0,
+  "controller_mode": "speed_pi",
+  "final_integral_state": 59.066838437970986,
+  "final_position_error_m": null,
+  "final_position_m": 4440.933161562031,
+  "final_speed_error_mps": 0.04975940454715655,
+  "final_speed_mps": 24.950240595452843,
+  "first_stop_position_m": null,
+  "first_stop_time_s": null,
+  "integral_units": "m",
+  "max_abs_acceleration_mps2": 0.75,
+  "minimum_stopping_margin_m": -4095.3148660708453,
+  "peak_applied_braking_N": 0.0,
+  "peak_applied_traction_N": 24997.85343435612,
+  "peak_position_overshoot_m": null,
+  "peak_requested_braking_N": 0.0,
+  "peak_requested_traction_N": 24997.85343435612,
+  "position_settling_time_s": null,
+  "saturated_steps": 0,
+  "saturation_duration_s": 0.0,
+  "speed_settling_time_s": 144.5,
+  "station_crossing_speed_mps": 26.754630092636464,
+  "station_crossing_time_s": 22.784862334426276,
+  "steady_window_mean_speed_error_mps": -0.05926333236302954,
+  "stop_status": "not_stopped",
+  "supervisor_override_duration_s": 0.0,
+  "supervisor_override_steps": 0
+}

@@ -1,0 +1,41 @@
+{
+  "controller": {
+    "fixed_force": 30000.0,
+    "kd_position": 800.0,
+    "ki_position": 5.0,
+    "ki_speed": 100.0,
+    "kp_position": 100.0,
+    "kp_speed": 1000.0,
+    "mode": "speed_pi",
+    "nominal_disturbance": 0.0,
+    "position_target": 500.0,
+    "speed_target": 25.0
+  },
+  "experiment": "i_robustness",
+  "integral_state_units": "m",
+  "notes": "Stronger disturbance and timestep robustness",
+  "plant": {
+    "brake_max": 40000.0,
+    "mass": 20000.0,
+    "rolling_resistance": 2000.0,
+    "traction_max": 40000.0,
+    "velocity_resistance": 500.0
+  },
+  "scenario": {
+    "available_deceleration": 2.0,
+    "disturbance": 6000,
+    "disturbance_at": 60,
+    "dt": 0.05,
+    "duration": 180,
+    "initial_integral": 0.0,
+    "initial_position": 0.0,
+    "initial_speed": 15,
+    "response_delay": 0.0,
+    "safety_margin": 5.0
+  },
+  "software": {
+    "implementation": "cpython",
+    "numpy": "2.5.4",
+    "python": "3.12.3"
+  }
+}

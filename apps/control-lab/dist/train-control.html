@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#07131f">
+  <meta name="description" content="Interactive train motion, speed PI, position PID, anti-windup and braking-feasibility control laboratory.">
+  <title>Project 03 — Train Motion PID Control | Control Lab</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="pages.css">
+  <link rel="stylesheet" href="animation.css">
+  <link rel="stylesheet" href="train-control.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="index.html"><span class="brand-mark">CL</span><span>CONTROL LAB</span></a>
+    <nav class="phase-nav" aria-label="Course projects"><a href="index.html">02 · P</a><a href="pi-control.html">03 · PI</a><a href="two-tank.html">04 · Tanks</a><a class="active" href="train-control.html">05 · Train</a></nav>
+  </header>
+
+  <main>
+    <section class="hero phase-hero train-hero">
+      <div><p class="eyebrow">PROJECT 03 / FORCE, SPEED, POSITION & PID</p><h1>Accelerate.<br><em>Regulate. Stop.</em></h1><p class="lede">Move from liquid level control to Newton's second law. Command signed traction and braking, compare P/PI/PD/PID, and keep physical stopping feasibility separate from tracking control.</p><a class="hero-report-link" href="train-control-report.html">Read the full engineering report →</a></div>
+      <div class="concept-card train-concept"><span class="concept-number">04</span><p>One actuator changes acceleration; acceleration changes speed; speed changes position.</p><code>ΣF = m·a → v̇ → ẋ</code></div>
+    </section>
+
+    <section class="lesson-strip train-lessons"><div><span>Plant</span><strong>m·v̇ = u − Froll − c·v − d</strong></div><div><span>Position derivative</span><strong>ėx = −v for a fixed station</strong></div><div><span>Safety boundary</span><strong>PID tracking ≠ certified stopping</strong></div></section>
+
+    <section class="dynamic-lab train-dynamic" aria-label="Mathematically synchronized train animation">
+      <div class="animation-copy">
+        <p class="eyebrow">LIVE OLD-STATE EULER SAMPLE</p><h2>Watch force become motion</h2><p>The train, force arrows, equations, status and plots use the same deterministic sample. The rail drawing uses a normalized display scale; the numerical position remains metres.</p>
+        <div class="animation-controls train-playback"><button id="playAnimation" class="button">Pause</button><button id="stepAnimation" class="button">Step</button><input id="animationTime" aria-label="Simulation time" type="range" min="0" max="1000" value="0"><span id="animationClock">0.0 s</span></div>
+        <div class="live-equations train-equations" aria-live="polite">
+          <div><span>TRACKING ERROR</span><strong id="liveError">—</strong></div><div><span>CONTROLLER</span><strong id="liveController">—</strong></div>
+          <div><span>EXECUTED FORCE</span><strong id="liveForce">—</strong></div><div><span>NEWTON'S LAW</span><strong id="liveAcceleration">—</strong></div>
+          <div><span>EULER UPDATE</span><strong id="liveEuler">—</strong></div><div><span>STOPPING CHECK</span><strong id="liveFeasibility">—</strong></div>
+        </div>
+      </div>
+      <div class="train-stage" id="trainStage">
+        <div class="distance-scale"><span id="scaleStart">x₀</span><span id="scaleStation">station</span></div>
+        <div class="station" id="station"><i></i><strong>STATION</strong><span id="stationLabel">500 m</span></div>
+        <div class="force-arrow resistance-arrow" id="resistanceArrow"><span>resistance</span></div>
+        <div class="force-arrow actuator-arrow" id="actuatorArrow"><span id="actuatorArrowLabel">traction</span></div>
+        <div class="train" id="animatedTrain"><div class="train-cab"><b></b><span>CL-03</span></div><div class="train-car"></div><i class="wheel wheel-a"></i><i class="wheel wheel-b"></i><i class="wheel wheel-c"></i></div>
+        <div class="rail"><i></i></div>
+        <div class="train-readout"><strong id="animatedPosition">x = —</strong><span id="animatedSpeed">v = —</span><em id="motionState">—</em></div>
+        <p class="scale-note">Normalized animation: start and station are mapped to the rail. Read exact SI values above.</p>
+      </div>
+    </section>
+
+    <section class="lab-grid train-lab">
+      <aside class="controls panel">
+        <div class="section-head"><div><p class="eyebrow">PROJECT 03 INPUTS</p><h2>Train control</h2></div><button id="reset" class="text-button">Baseline</button></div>
+        <div class="preset-row"><button id="presetSpeed" class="button">Speed disturbance</button><button id="presetStation" class="button">Station approach</button><button id="presetWindup" class="button">Windup case</button></div>
+        <details open><summary>Control mode <span>01</span></summary><div class="control-group"><label class="select-label" for="mode">Controller</label><select id="mode"><option value="open_loop">Open-loop force</option><option value="speed_p">Speed P</option><option value="speed_pi">Speed PI</option><option value="position_p">Position P</option><option value="position_pd">Position PD</option><option value="position_pid">Position PID</option><option value="position_pid_aw">PID + anti-windup</option><option value="position_pid_supervisor" selected>PID + brake supervisor</option></select><label>Fixed force <output data-for="fixedForce"></output></label><input id="fixedForce" type="range" min="-40000" max="40000" step="1000" value="30000"></div></details>
+        <details open><summary>Plant & initial state <span>02</span></summary><div class="control-group"><label>Mass m <output data-for="mass"></output></label><input id="mass" type="range" min="5000" max="50000" step="1000" value="20000"><label>Rolling resistance <output data-for="rollingResistance"></output></label><input id="rollingResistance" type="range" min="0" max="6000" step="250" value="2000"><label>Velocity resistance c <output data-for="velocityResistance"></output></label><input id="velocityResistance" type="range" min="0" max="1500" step="50" value="500"><label>Initial position <output data-for="initialPosition"></output></label><input id="initialPosition" type="range" min="0" max="600" step="10" value="400"><label>Initial speed <output data-for="initialSpeed"></output></label><input id="initialSpeed" type="range" min="0" max="40" step="1" value="20"></div></details>
+        <details open><summary>Targets & gains <span>03</span></summary><div class="control-group"><label>Speed target <output data-for="speedTarget"></output></label><input id="speedTarget" type="range" min="0" max="60" step="1" value="25"><label>Station position <output data-for="positionTarget"></output></label><input id="positionTarget" type="range" min="100" max="1500" step="25" value="500"><label>Initial integral state <output data-for="initialIntegral"></output></label><input id="initialIntegral" type="range" min="-5000" max="5000" step="50" value="0"><label>Speed Kp <output data-for="kpSpeed"></output></label><input id="kpSpeed" type="range" min="0" max="3000" step="100" value="1000"><label>Speed Ki <output data-for="kiSpeed"></output></label><input id="kiSpeed" type="range" min="0" max="300" step="10" value="100"><label>Position Kp <output data-for="kpPosition"></output></label><input id="kpPosition" type="range" min="0" max="400" step="10" value="100"><label>Position Ki <output data-for="kiPosition"></output></label><input id="kiPosition" type="range" min="0" max="20" step="1" value="5"><label>Position Kd <output data-for="kdPosition"></output></label><input id="kdPosition" type="range" min="0" max="2400" step="100" value="800"></div></details>
+        <details><summary>Limits, disturbance & time <span>04</span></summary><div class="control-group"><label>Max traction <output data-for="tractionMax"></output></label><input id="tractionMax" type="range" min="5000" max="80000" step="1000" value="40000"><label>Max active brake <output data-for="brakeMax"></output></label><input id="brakeMax" type="range" min="5000" max="80000" step="1000" value="40000"><label>Opposing disturbance <output data-for="disturbance"></output></label><input id="disturbance" type="range" min="0" max="12000" step="500" value="0"><label>Disturbance starts <output data-for="disturbanceAt"></output></label><input id="disturbanceAt" type="range" min="0" max="180" step="5" value="60"><label>Duration <output data-for="duration"></output></label><input id="duration" type="range" min="20" max="240" step="10" value="60"><label>Time step Δt <output data-for="dt"></output></label><input id="dt" type="range" min="0.05" max="1" step="0.05" value="0.1"><label>Available net decel <output data-for="availableDeceleration"></output></label><input id="availableDeceleration" type="range" min="0.5" max="4" step="0.1" value="1"><label>Safety margin <output data-for="safetyMargin"></output></label><input id="safetyMargin" type="range" min="0" max="100" step="5" value="0"></div></details>
+      </aside>
+
+      <div class="workspace">
+        <section class="metrics train-metrics" aria-label="Current calculated train values"><article><span>Current position</span><strong id="metricPosition">—</strong><small id="metricRemaining">—</small></article><article><span>Current speed</span><strong id="metricSpeed">—</strong><small id="metricMotion">—</small></article><article><span>Applied actuator</span><strong id="metricForce">—</strong><small id="metricForceMode">—</small></article><article><span>Stopping margin</span><strong id="metricMargin">—</strong><small id="metricFeasible">—</small></article><article><span>Integral memory</span><strong id="metricIntegral">—</strong><small id="metricIntegralUnits">—</small></article><article><span>Final outcome</span><strong id="metricOutcome">—</strong><small id="metricFinalError">—</small></article></section>
+
+        <section class="chart-card panel"><div class="chart-title"><div><p class="eyebrow">PHYSICAL STATES</p><h2>Position and station</h2></div><div class="legend"><span class="pi">Position</span><span class="reference">Station</span></div></div><canvas id="positionChart" role="img" aria-label="Train position and station target over time"></canvas></section>
+        <section class="chart-card panel compact"><div class="chart-title"><div><p class="eyebrow">VELOCITY</p><h2>Speed response</h2></div><div class="legend"><span class="speed-legend">Speed</span><span class="reference">Speed target</span></div></div><canvas id="speedChart" role="img" aria-label="Train speed response"></canvas></section>
+        <section class="chart-card panel compact"><div class="chart-title"><div><p class="eyebrow">SIGNED ACTUATOR</p><h2>Requested versus applied force</h2></div><div class="legend"><span class="request-legend">Requested</span><span class="applied-legend">Applied</span></div></div><canvas id="forceChart" role="img" aria-label="Requested and applied signed force"></canvas></section>
+        <section class="chart-card panel compact"><div class="chart-title"><div><p class="eyebrow">CONTROLLER MEMORY</p><h2>Error and integral state</h2></div></div><canvas id="memoryChart" role="img" aria-label="Controller error and integral state"></canvas></section>
+        <section class="chart-card panel compact"><div class="chart-title"><div><p class="eyebrow">BRAKING FEASIBILITY</p><h2>Remaining versus stopping distance</h2></div><div class="chart-note">Negative margin means the configured constant-deceleration estimate is infeasible.</div></div><canvas id="safetyChart" role="img" aria-label="Remaining distance and estimated stopping distance"></canvas></section>
+
+        <section class="comparison-card panel"><div><p class="eyebrow">FAIR SAME-PLANT COMPARISON</p><h2>P / PD / PID position baseline</h2><p>The same plant, initial state, limits and time step are used for every row. Crossing the station at speed is not reported as a successful stop.</p></div><div class="table-scroll"><table><thead><tr><th>Controller</th><th>Final x</th><th>Peak overshoot</th><th>Outcome</th></tr></thead><tbody><tr><td>P</td><td id="comparePPosition">—</td><td id="comparePOvershoot">—</td><td id="comparePOutcome">—</td></tr><tr><td>PD</td><td id="comparePDPosition">—</td><td id="comparePDOvershoot">—</td><td id="comparePDOutcome">—</td></tr><tr><td>PID + AW</td><td id="comparePIDPosition">—</td><td id="comparePIDOvershoot">—</td><td id="comparePIDOutcome">—</td></tr></tbody></table></div></section>
+        <section class="insight panel train-warning"><p class="eyebrow">ENGINEERING INTERPRETATION</p><p id="insightText">—</p><div class="equation" id="equation">—</div></section>
+      </div>
+    </section>
+  </main>
+  <footer><span>CONTROL LAB / PROJECT 03</span><span>Educational simplified model — not certified for rail-safety applications</span></footer>
+  <script src="train-model.js"></script>
+  <script src="train-control.js"></script>
+</body>
+</html>

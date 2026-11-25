@@ -1,0 +1,49 @@
+{
+  "all_values_finite": true,
+  "analysis": {
+    "constant_deceleration_checks": {
+      "1_mps2": {
+        "feasible": false,
+        "margin": -100.0,
+        "remaining_distance": 100,
+        "required_deceleration": 2.0,
+        "stopping_distance": 200.0
+      },
+      "2_mps2": {
+        "feasible": true,
+        "margin": 0.0,
+        "remaining_distance": 100,
+        "required_deceleration": 2.0,
+        "stopping_distance": 100.0
+      },
+      "constant_1_mps2_stop_position_m": 600.0
+    }
+  },
+  "anti_windup_activations": 338,
+  "controller_mode": "position_pid_supervisor",
+  "final_integral_state": 521.0332419027021,
+  "final_position_error_m": 0.0841854527537862,
+  "final_position_m": 499.9158145472462,
+  "final_speed_error_mps": null,
+  "final_speed_mps": 0.0,
+  "first_stop_position_m": 482.83764522250345,
+  "first_stop_time_s": 8.537647080684486,
+  "integral_units": "m*s",
+  "max_abs_acceleration_mps2": 2.6,
+  "minimum_stopping_margin_m": -100.0,
+  "peak_applied_braking_N": 40000.0,
+  "peak_applied_traction_N": 2848.2652650681594,
+  "peak_position_overshoot_m": 0.0,
+  "peak_requested_braking_N": 40000.0,
+  "peak_requested_traction_N": 2848.2652650681594,
+  "position_settling_time_s": 50.550000000000004,
+  "saturated_steps": 0,
+  "saturation_duration_s": 0.0,
+  "speed_settling_time_s": null,
+  "station_crossing_speed_mps": null,
+  "station_crossing_time_s": null,
+  "steady_window_mean_speed_error_mps": null,
+  "stop_status": "stopped_at_target",
+  "supervisor_override_duration_s": 16.900000000000002,
+  "supervisor_override_steps": 338
+}
